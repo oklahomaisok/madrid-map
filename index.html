@@ -48,7 +48,11 @@
   .place .bl{color:var(--muted);font-size:14px;margin:0 0 10px}
   .place .meta{display:flex;justify-content:space-between;align-items:center;font-size:13px}
   .place .walk{color:var(--ink);font-weight:600}
-  .place a.dir{color:#3d6db5;text-decoration:none;font-weight:600}
+  .place .rating{color:var(--ink);font-weight:600;white-space:nowrap}
+  .place .rating .star{color:#e0a32e}
+  .place .rating .rc{color:var(--muted);font-weight:400}
+  .place .links{display:flex;gap:16px;margin-top:10px}
+  .place .links a{color:#3d6db5;text-decoration:none;font-weight:600;font-size:13px}
   footer{max-width:1100px;margin:0 auto;padding:8px 24px 48px;color:var(--muted);font-size:13px}
   @media (max-width:640px){
     h1{font-size:27px}
@@ -68,7 +72,7 @@
 <div id="map"></div>
 
 <main id="sections"></main>
-<footer>Walking times are estimates from straight-line distance. Data last checked 2026-06-08.</footer>
+<footer>Walking times are estimates. ★ ratings are a snapshot of Google reviews (some places have none yet). Data last checked 2026-06-08.</footer>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
   integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
@@ -114,14 +118,17 @@ const PLACES = [
     tags:['Supermarket'],
     gmaps:'https://www.google.com/maps/search/?api=1&query=Dia%2C%20Gaztambide%2C%20Madrid' },
   { name:'Carrefour Market', cat:'grocery', lat:40.4428, lng:-3.7134,
+    rating:4.1, reviews:5111,
     blurb:'Short walk north; open Mon–Sat 8:30–23:00, Sun 9:00–22:00.',
     tags:['Supermarket'],
     gmaps:'https://www.google.com/maps/search/?api=1&query=Carrefour%20Market%2C%20Calle%20Juli%C3%A1n%20Romea%204%2C%20Madrid' },
   { name:'Lidl', cat:'grocery', lat:40.4382, lng:-3.7128,
+    rating:4.1, reviews:1365,
     blurb:'Full Lidl on Guzmán el Bueno 70, just south; open until 22:00.',
     tags:['Supermarket'],
     gmaps:'https://www.google.com/maps/search/?api=1&query=Lidl%2C%20Calle%20de%20Guzm%C3%A1n%20el%20Bueno%2070%2C%20Madrid' },
   { name:'Ahorramás', cat:'grocery', lat:40.4350, lng:-3.7145,
+    rating:4.0, reviews:null,
     blurb:'Inside Mercado Municipal de Guzmán el Bueno; home delivery available.',
     tags:['Supermarket'],
     gmaps:'https://www.google.com/maps/search/?api=1&query=Ahorramas%2C%20Calle%20de%20Andr%C3%A9s%20Mellado%2043%2C%20Madrid' },
@@ -130,6 +137,7 @@ const PLACES = [
     tags:['Supermarket'],
     gmaps:'https://www.google.com/maps/search/?api=1&query=Mercadona%2C%20Calle%20de%20los%20Vascos%2029%2C%20Madrid' },
   { name:'Mercado de Vallehermoso', cat:'grocery', lat:40.4341, lng:-3.7082,
+    rating:4.4, reviews:6783,
     blurb:'Artisan food market — butchers, fishmongers, cheese — on Fernando el Católico.',
     tags:['Fresh Market'],
     gmaps:'https://www.google.com/maps/search/?api=1&query=Mercado%20de%20Vallehermoso%2C%20Calle%20de%20Fernando%20el%20Cat%C3%B3lico%2C%20Madrid' },
@@ -140,70 +148,81 @@ const PLACES = [
     tags:['Playground','Dogs OK'],
     gmaps:'https://www.google.com/maps/search/?api=1&query=Parque%20de%20Santander%2C%20Madrid' },
   { name:'Parque del Oeste', cat:'park', lat:40.4297, lng:-3.7252,
+    rating:4.5, reviews:30472,
     blurb:'Sweeping hillside park; several play zones plus a large dog-walking area (Rosaleda).',
     tags:['Playground','Dogs OK','Big green space'],
     gmaps:'https://www.google.com/maps/search/?api=1&query=Parque%20del%20Oeste%2C%20Madrid' },
   { name:'Parque Ríos Rosas', cat:'park', lat:40.4401, lng:-3.7013,
+    rating:4.3, reviews:338,
     blurb:'Canal de Isabel II garden with an adapted children’s play area and fountains.',
     tags:['Playground','Dogs on lead'],
     gmaps:'https://www.google.com/maps/search/?api=1&query=Parque%20R%C3%ADos%20Rosas%2C%20Madrid' },
   { name:'Dehesa de la Villa', cat:'park', lat:40.4579, lng:-3.7208,
+    rating:4.6, reviews:8937,
     blurb:'Semi-wild woodland with a kids’ log-trail play zone — excellent long dog walks.',
     tags:['Playground','Dogs OK','Big green space'],
     gmaps:'https://www.google.com/maps/search/?api=1&query=Dehesa%20de%20la%20Villa%2C%20Madrid' },
 
   // 🍽️ Restaurants
   { name:'Tobalá Tacobar', cat:'restaurant', lat:40.4340, lng:-3.7157,
+    rating:4.8, reviews:904,
     blurb:'All-Mexican team; chilaquiles, pozole, birria — deep regional menu beyond tacos.',
     tags:['Mexican'],
     gmaps:'https://www.google.com/maps/search/?api=1&query=Tobal%C3%A1%20Tacobar%2C%20Madrid' },
   { name:'Cómete México', cat:'restaurant', lat:40.4422, lng:-3.7030,
+    rating:4.2, reviews:1461,
     blurb:'9.3/10 food on TheFork; buzzy spot for generous, authentic Mexican plates.',
     tags:['Mexican'],
     gmaps:'https://www.google.com/maps/search/?api=1&query=C%C3%B3mete%20M%C3%A9xico%2C%20Madrid' },
   { name:'Puntarena', cat:'restaurant', lat:40.4301, lng:-3.7094,
+    rating:4.6, reviews:1638,
     blurb:'Michelin-listed Mexican Pacific seafood — ceviches, aguachiles, fish al pastor.',
     tags:['Mexican'],
     gmaps:'https://www.google.com/maps/search/?api=1&query=Puntarena%2C%20Madrid' },
   { name:'Mantra Restaurant', cat:'restaurant', lat:40.4357, lng:-3.6977,
+    rating:4.5, reviews:812,
     blurb:'9.2/10 TheFork; excellent-value Indian in Chamberí with a full, fresh menu.',
     tags:['Indian'],
     gmaps:'https://www.google.com/maps/search/?api=1&query=Mantra%20Restaurant%2C%20Madrid' },
   { name:'Benares Madrid', cat:'restaurant', lat:40.4276, lng:-3.6939,
+    rating:4.4, reviews:2066,
     blurb:'Michelin Guide Indian haute cuisine; octopus bhuna, jhinga tandoor — ~2.3 km away.',
     tags:['Indian'],
     gmaps:'https://www.google.com/maps/search/?api=1&query=Benares%20Madrid%2C%20Madrid' },
   { name:'Ramen Komainu Chamberí', cat:'restaurant', lat:40.4386, lng:-3.7008,
+    rating:4.7, reviews:943,
     blurb:'4.7★ with 850+ reviews; artisanal tori paitan ramen, often called Madrid’s best.',
     tags:['Ramen'],
     gmaps:'https://www.google.com/maps/search/?api=1&query=Ramen%20Komainu%20Chamber%C3%AD%2C%20Madrid' },
   { name:'Tripea', cat:'restaurant', lat:40.4342, lng:-3.7086,
+    rating:4.5, reviews:1007,
     blurb:'Repsol Sun, ex-Bib Gourmand; Peruvian-Asian tasting menu in Vallehermoso market.',
     tags:['Asian'],
     gmaps:'https://www.google.com/maps/search/?api=1&query=Tripea%2C%20Madrid' },
-  { name:'Gingerboy', cat:'restaurant', lat:40.4333, lng:-3.7008,
-    blurb:'Long-standing Thai fusion near Plaza Olavide; pad thai de langostinos is the signature.',
-    tags:['Thai'],
-    gmaps:'https://www.google.com/maps/search/?api=1&query=Gingerboy%2C%20Madrid' },
   { name:'Sala de Despiece', cat:'restaurant', lat:40.4379, lng:-3.6995,
+    rating:4.4, reviews:5703,
     blurb:'Ponzano icon — creative market-driven tapas at the bar; no-reservations counter.',
     tags:['Tapas'],
     gmaps:'https://www.google.com/maps/search/?api=1&query=Sala%20de%20Despiece%2C%20Madrid' },
   { name:'La Máquina Chamberí', cat:'restaurant', lat:40.4401, lng:-3.6993,
+    rating:4.3, reviews:6762,
     blurb:'7,700+ reviews; beloved Ponzano seafood institution — red shrimp, oysters, croquettes.',
     tags:['Spanish'],
     gmaps:'https://www.google.com/maps/search/?api=1&query=La%20M%C3%A1quina%20Chamber%C3%AD%2C%20Madrid' },
   { name:'Arima Basque Gastronomy', cat:'restaurant', lat:40.4408, lng:-3.6992,
+    rating:4.1, reviews:947,
     blurb:'San Sebastián chef on Ponzano; Wagyu jerky, pig-ear tacos, 30+ vermouths by the glass.',
     tags:['Spanish'],
     gmaps:'https://www.google.com/maps/search/?api=1&query=Arima%20Basque%20Gastronomy%2C%20Madrid' },
 
   // 🛍️ Boutique shopping
   { name:"Carmen's Boutique", cat:'boutique', lat:40.4385, lng:-3.7130,
+    rating:4.6, reviews:38,
     blurb:'Family-run women’s fashion since 1977; curated European labels, personal styling.',
     tags:['Fashion'],
     gmaps:'https://www.google.com/maps/search/?api=1&query=Carmen%27s%20Boutique%2C%20Madrid' },
   { name:'Humpier', cat:'boutique', lat:40.4384, lng:-3.7128,
+    rating:4.9, reviews:54,
     blurb:'Spanish slow-fashion brand; organic & recycled materials, made in Spain and Portugal.',
     tags:['Fashion'],
     gmaps:'https://www.google.com/maps/search/?api=1&query=Humpier%2C%20Madrid' },
@@ -212,14 +231,17 @@ const PLACES = [
     tags:['Fashion'],
     gmaps:'https://www.google.com/maps/search/?api=1&query=La%20Tienda%20de%20Marta%2C%20Madrid' },
   { name:'Librería Rafael Alberti', cat:'boutique', lat:40.4319, lng:-3.7188,
+    rating:4.8, reviews:775,
     blurb:'Independent Argüelles bookshop since 1975; 25,000+ titles, tiled poet’s facade.',
     tags:['Bookshop'],
     gmaps:'https://www.google.com/maps/search/?api=1&query=Librer%C3%ADa%20Rafael%20Alberti%2C%20Madrid' },
   { name:'Paperground Bookshop', cat:'boutique', lat:40.4363, lng:-3.7000,
+    rating:4.5, reviews:11,
     blurb:'Tiny Chamberí indie shop for photography books, design zines & art magazines.',
     tags:['Bookshop'],
     gmaps:'https://www.google.com/maps/search/?api=1&query=Paperground%20Bookshop%2C%20Madrid' },
   { name:'Rughara', cat:'boutique', lat:40.4333, lng:-3.6994,
+    rating:4.5, reviews:93,
     blurb:'Selector store near Plaza Olavide: clothing, footwear & home from indie designers (~1.6 km).',
     tags:['Concept store'],
     gmaps:'https://www.google.com/maps/search/?api=1&query=Rughara%2C%20Madrid' },
@@ -256,6 +278,7 @@ const PLACES = [
     tags:['Pharmacy'],
     gmaps:'https://www.google.com/maps/search/?api=1&query=Farmacia%20Paseo%20San%20Francisco%20de%20Sales%205%2C%20Madrid' },
   { name:'Farmacia Bellver — 24 h', cat:'health', lat:40.4387, lng:-3.7089,
+    rating:3.9, reviews:166,
     blurb:'The 24h / 365-day pharmacy for 28003, on C/ Cea Bermúdez 15.',
     tags:['Pharmacy','24h'],
     gmaps:'https://www.google.com/maps/search/?api=1&query=Farmacia%20Bellver%2C%20Calle%20Cea%20Berm%C3%BAdez%2015%2C%20Madrid' },
@@ -264,32 +287,39 @@ const PLACES = [
     tags:['Health center'],
     gmaps:'https://www.google.com/maps/search/?api=1&query=Centro%20de%20Salud%20Andr%C3%A9s%20Mellado%2C%20Madrid' },
   { name:'Hospital Clínico San Carlos', cat:'health', lat:40.4407, lng:-3.7200,
+    rating:3.3, reviews:1527,
     blurb:'Major public university hospital just west; A&E (Urgencias) open 24h.',
     tags:['Hospital'],
     gmaps:'https://www.google.com/maps/search/?api=1&query=Hospital%20Cl%C3%ADnico%20San%20Carlos%2C%20Madrid' },
 
   // ☕ Cafes & coworking
   { name:'Monkee Koffee', cat:'cafe', lat:40.4405, lng:-3.7080,
+    rating:4.2, reviews:2054,
     blurb:'Communal tables, cold brew and serious espresso — in your own barrio.',
     tags:['Specialty coffee','Work-friendly'],
     gmaps:'https://www.google.com/maps/search/?api=1&query=Monkee%20Koffee%2C%20Madrid' },
   { name:'The Little Big Cafe', cat:'cafe', lat:40.4352, lng:-3.7127,
+    rating:4.6, reviews:1677,
     blurb:'Top-ranked Gaztambide specialty cafe; healthy brunch and cosy tables.',
     tags:['Specialty coffee','Work-friendly'],
     gmaps:'https://www.google.com/maps/search/?api=1&query=The%20Little%20Big%20Cafe%2C%20Madrid' },
   { name:'Randall Coffee Roasters', cat:'cafe', lat:40.4342, lng:-3.7086,
+    rating:4.7, reviews:230,
     blurb:'Madrid pioneer micro-roaster (since 2013), inside Mercado de Vallehermoso.',
     tags:['Specialty coffee'],
     gmaps:'https://www.google.com/maps/search/?api=1&query=Randall%20Coffee%20Roasters%2C%20Madrid' },
   { name:'Toma Café', cat:'cafe', lat:40.4331, lng:-3.7001,
+    rating:4.4, reviews:3488,
     blurb:'Well-known specialty cafe; weekday WiFi, relaxed vibe, good for laptop work.',
     tags:['Specialty coffee','Work-friendly'],
     gmaps:'https://www.google.com/maps/search/?api=1&query=Toma%20Caf%C3%A9%2C%20Madrid' },
   { name:'EITO Coworking', cat:'cafe', lat:40.4327, lng:-3.7019,
+    rating:4.9, reviews:90,
     blurb:'Chamberí coworking with in-house specialty coffee; day pass ~€22, 25+ desks.',
     tags:['Coworking','Specialty coffee'],
     gmaps:'https://www.google.com/maps/search/?api=1&query=EITO%20Coworking%2C%20Madrid' },
   { name:'OXYGEN Workspace', cat:'cafe', lat:40.4280, lng:-3.7147,
+    rating:4.9, reviews:54,
     blurb:'Affordable coworking on Princesa (Argüelles); fixed desks from ~€215/mo, free coffee.',
     tags:['Coworking'],
     gmaps:'https://www.google.com/maps/search/?api=1&query=OXYGEN%20Workspace%2C%20Madrid' },
@@ -303,8 +333,16 @@ PLACES.forEach(p => {
   if(!p.gmaps) console.error('Missing gmaps:', p.name);
 });
 
-// Precompute walking minutes once per place (stable; used by pins and cards).
-PLACES.forEach(p => { p._mins = walkMinutes(p.lat, p.lng); });
+// Precompute per-place derived values (stable; used by pins and cards).
+PLACES.forEach(p => {
+  p._mins = walkMinutes(p.lat, p.lng);
+  const q = p.gmaps.split('query=')[1] || encodeURIComponent(p.name + ', Madrid');
+  p._dir = 'https://www.google.com/maps/dir/?api=1&destination=' + q;
+  p._stars = p.rating
+    ? `<span class="star">★</span> ${p.rating.toFixed(1)}` +
+      (p.reviews ? ` <span class="rc">(${p.reviews.toLocaleString('en-US')})</span>` : '')
+    : '';
+});
 
 // --- Map ---
 // scrollWheelZoom off so the page scrolls smoothly past the map; +/- buttons and pinch still zoom.
@@ -346,9 +384,11 @@ PLACES.forEach(p => {
   const c = CAT[p.cat];
   const mins = p._mins;
   const tagLine = (p.tags && p.tags.length) ? `<br><span style="color:#6b6358">${p.tags.join(' · ')}</span>` : '';
+  const ratingTxt = p.rating ? ` · ★ ${p.rating.toFixed(1)}${p.reviews ? ' ('+p.reviews.toLocaleString('en-US')+')' : ''}` : '';
   const popup =
     `<b>${p.name}</b>${tagLine}<br>${p.blurb}` +
-    `<br><b>${mins} min</b> walk · <a href="${p.gmaps}" target="_blank" rel="noopener">Directions ↗</a>`;
+    `<br><b>${mins} min</b> walk${ratingTxt}` +
+    `<br><a href="${p.gmaps}" target="_blank" rel="noopener">Google profile ↗</a> · <a href="${p._dir}" target="_blank" rel="noopener">Directions ↗</a>`;
   const m = L.marker([p.lat, p.lng], { icon: pinIcon(c.color) })
     .bindPopup(popup)
     .addTo(layerByCat[p.cat]);
@@ -395,10 +435,14 @@ CATEGORIES.forEach(c => {
       const card = document.createElement('div');
       card.className = 'place';
       const tags = (p.tags && p.tags.length) ? `<p class="tags">${p.tags.join(' · ')}</p>` : '';
+      const ratingHtml = p._stars ? `<span class="rating">${p._stars}</span>` : '';
       card.innerHTML =
         `<p class="nm">${p.name}</p>${tags}<p class="bl">${p.blurb}</p>` +
-        `<div class="meta"><span class="walk">${mins} min walk</span>` +
-        `<a class="dir" href="${p.gmaps}" target="_blank" rel="noopener" onclick="event.stopPropagation()">Directions ↗</a></div>`;
+        `<div class="meta"><span class="walk">${mins} min walk</span>${ratingHtml}</div>` +
+        `<div class="links">` +
+          `<a href="${p.gmaps}" target="_blank" rel="noopener" onclick="event.stopPropagation()">Google profile ↗</a>` +
+          `<a class="dir" href="${p._dir}" target="_blank" rel="noopener" onclick="event.stopPropagation()">Directions ↗</a>` +
+        `</div>`;
       card.addEventListener('click', () => {
         if(!map.hasLayer(layerByCat[p.cat])){
           layerByCat[p.cat].addTo(map);
