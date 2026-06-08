@@ -30,6 +30,9 @@
     border-bottom:1px solid var(--line)}
   .home-dot{background:var(--home);width:18px;height:18px;border-radius:50%;
     border:3px solid #fff;box-shadow:0 0 0 2px var(--home)}
+  .leaflet-control-layers{font-family:"DM Sans",system-ui,sans-serif;font-size:13px;
+    border-radius:10px;padding:6px 10px}
+  .leaflet-control-layers-base label{display:flex;align-items:center;gap:6px;margin:3px 0;cursor:pointer}
   main{max-width:1100px;margin:0 auto;padding:24px}
   .section{margin:34px 0}
   .section h2{font-family:"Playfair Display",Georgia,serif;font-weight:600;font-size:23px;
@@ -306,10 +309,19 @@ PLACES.forEach(p => { p._mins = walkMinutes(p.lat, p.lng); });
 // --- Map ---
 // scrollWheelZoom off so the page scrolls smoothly past the map; +/- buttons and pinch still zoom.
 const map = L.map('map', { scrollWheelZoom: false }).setView([HOME.lat, HOME.lng], 15);
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-  maxZoom: 19,
-  attribution: '&copy; OpenStreetMap contributors'
-}).addTo(map);
+
+// Basemaps: switch between a clean Apple/Google-style view and the detailed OSM map.
+const CARTO_ATTR = '&copy; OpenStreetMap contributors &copy; CARTO';
+const baseLayers = {
+  'Clean': L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+    maxZoom: 20, subdomains:'abcd', attribution: CARTO_ATTR }),
+  'Minimal': L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+    maxZoom: 20, subdomains:'abcd', attribution: CARTO_ATTR }),
+  'Detailed': L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19, attribution: '&copy; OpenStreetMap contributors' }),
+};
+baseLayers['Clean'].addTo(map); // default to the clean view
+L.control.layers(baseLayers, null, { collapsed: false }).addTo(map);
 
 const homeIcon = L.divIcon({ className:'', html:'<div class="home-dot" title="Home"></div>',
   iconSize:[18,18], iconAnchor:[9,9] });
